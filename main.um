@@ -1,7 +1,7 @@
 import "std.um"
 
 fn get_file_content(file_name: str): str {
-    file, err := std::fopen(file_name, "r")
+    file, err := std::fopen(file_name, "rb")
     std::exitif(err)
 
     var file_content: str
