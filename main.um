@@ -1,6 +1,9 @@
-import "std.um"
+import (
+    "std.um"
+    "nodes.um"
+)
 
-fn get_file_content(file_name : str): str {
+fn get_file_content(file_name : str) : str {
     file, err := std::fopen(file_name, "rb")
     std::exitif(err)
 
@@ -11,52 +14,84 @@ fn get_file_content(file_name : str): str {
     return file_content
 }
 
-fn parse_heading(content : str, start : int): int {
-    level := 0
+fn parse_heading(content: str, start: int): ^nodes::HeadingNode {
+    heading := new(nodes::HeadingNode)
+    heading.level = 0
+
     index := start
 
-    for index < len(content) && level < 6 {
+    for index < len(content) && heading.level < 6 {
         if content[index] != '#' {
             break
         }
 
-        level++
+        heading.level++
         index++
     }
 
-    return level
+    if index >= len(content) || content[index] != ' ' {
+        return null
+    }
+
+    index++
+    content_start := index
+
+    for index < len(content) && content[index] != '\n' {
+        index++
+    }
+
+    heading.content = slice(content, content_start, index)
+
+    return heading
+}
+
+fn parse_markdown(content: str): ^nodes::DocumentNode {
+    doc := new(nodes::DocumentNode)
+
+    index := 0
+    file_length := len(content)
+
+    for index < file_length {
+        ch := content[index]
+
+        // Heading
+        if ch == '#' && (index == 0 || content[index - 1] == '\n') {
+            heading := parse_heading(content, index)
+
+            if heading != null {
+                doc.children = append(
+                    doc.children,
+                    nodes::Node(heading)
+                )
+
+                for index < file_length && content[index] != '\n' {
+                    index++
+                }
+
+                continue
+            }
+        }
+
+        // TODO: Paragraph
+        index++
+    }
+
+    return doc
 }
 
 fn main() {
     argc := std::argc()
 
     if argc < 2 {
-        printf("wrong usage\n")
+        printf("usage: uswebka <file.md>\n")
         return
     }
 
     file_name := std::argv(1)
     file_content := get_file_content(file_name)
-    file_length := len(file_content)
 
-    var result : str
-    index := 0
-    for index < file_length {
-        ch := file_content[index]
+    doc := parse_markdown(file_content)
+    html := doc.render()
 
-        if ch == "#" && (index == 0 || file_content[index - 1] == "\n") {
-            level := parse_heading(file_content, index)
-
-            if level > 0 {
-                printf("<h%d>", level)
-                index += level
-                continue
-            }
-        }
-
-        printf("%c", ch)
-        index++
-    }
-
-    printf(result)
+    printf("%s", html)
 }
