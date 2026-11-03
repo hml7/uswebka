@@ -1,0 +1,26 @@
+import "std.um"
+
+fn main() {
+    argc := std::argc()
+
+    if argc < 2 {
+        printf("wrong usage\n")
+    }
+
+    // var args: []str = {}
+    // for i := 1; i <= argc - 1; i++ {
+        // args = append(args, std::argv(i))
+        // printf("%s, ", args[i - 1])
+    // }
+
+    file_name := std::argv(1)
+
+    file, err := std::fopen(file_name, "r")
+    std::exitif(err)
+
+    var file_content: str
+    file_content, err = std::freadall(file)
+    std::exitif(err)
+
+    printf("%s", file_content)
+}
