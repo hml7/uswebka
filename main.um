@@ -14,7 +14,7 @@ fn get_file_content(file_name : str) : str {
     return file_content
 }
 
-fn parse_heading(content: str, start: int): ^nodes::HeadingNode {
+fn parse_heading(content : str, start : int) : ^nodes::HeadingNode {
     heading := new(nodes::HeadingNode)
     heading.level = 0
 
@@ -45,7 +45,7 @@ fn parse_heading(content: str, start: int): ^nodes::HeadingNode {
     return heading
 }
 
-fn parse_markdown(content: str): ^nodes::DocumentNode {
+fn parse_markdown(content : str) : ^nodes::DocumentNode {
     doc := new(nodes::DocumentNode)
 
     index := 0

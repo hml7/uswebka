@@ -1,42 +1,42 @@
 import "std.um"
 
 type Node* = interface {
-    render(): str
+    render() : str
 }
 
 type TextNode* = struct {
-    content: str
+    content : str
 }
 
 type HeadingNode* = struct {
-    level: int
-    content: str
+    level : int
+    content : str
 }
 
 type ParagraphNode* = struct {
-    content: str
+    content : str
 }
 
 type DocumentNode* = struct {
-    children: []Node
+    children : []Node
 }
 
-fn (node: ^TextNode) render*(): str {
+fn (node : ^TextNode) render*() : str {
     return node.content
 }
 
-fn (node: ^HeadingNode) render*(): str {
+fn (node : ^HeadingNode) render*() : str {
     return "<h" + std::itoa(node.level) + ">" +
         node.content +
         "</h" + std::itoa(node.level) + ">"
 }
 
-fn (node: ^ParagraphNode) render*(): str {
+fn (node : ^ParagraphNode) render*() : str {
     return "<p>" + node.content + "</p>"
 }
 
-fn (node: ^DocumentNode) render*(): str {
-    var result: str
+fn (node : ^DocumentNode) render*() : str {
+    var result : str
 
     for _, child in node.children {
         result += child.render()
