@@ -1,14 +1,30 @@
 import "std.um"
 
-fn get_file_content(file_name: str): str {
+fn get_file_content(file_name : str): str {
     file, err := std::fopen(file_name, "rb")
     std::exitif(err)
 
-    var file_content: str
+    var file_content : str
     file_content, err = std::freadall(file)
     std::exitif(err)
 
     return file_content
+}
+
+fn parse_heading(content : str, start : int): int {
+    level := 0
+    index := start
+
+    for index < len(content) && level < 6 {
+        if content[index] != '#' {
+            break
+        }
+
+        level++
+        index++
+    }
+
+    return level
 }
 
 fn main() {
@@ -16,10 +32,31 @@ fn main() {
 
     if argc < 2 {
         printf("wrong usage\n")
+        return
     }
 
     file_name := std::argv(1)
     file_content := get_file_content(file_name)
+    file_length := len(file_content)
 
-    printf(file_content)
+    var result : str
+    index := 0
+    for index < file_length {
+        ch := file_content[index]
+
+        if ch == "#" && (index == 0 || file_content[index - 1] == "\n") {
+            level := parse_heading(file_content, index)
+
+            if level > 0 {
+                printf("<h%d>", level)
+                index += level
+                continue
+            }
+        }
+
+        printf("%c", ch)
+        index++
+    }
+
+    printf(result)
 }
