@@ -45,6 +45,23 @@ fn parse_heading(content: str, start: int): ^nodes::HeadingNode {
     return heading
 }
 
+fn parse_paragraph(content: str, start: int): ^nodes::ParagraphNode {
+    paragraph := new(nodes::ParagraphNode)
+
+    index := start
+
+    for index < len(content) {
+        if content[index] == '\n' {
+            break
+        }
+        index++
+    }
+
+    paragraph.content = slice(content, start, index)
+
+    return paragraph
+}
+
 fn parse_markdown(content: str): ^nodes::DocumentNode {
     doc := new(nodes::DocumentNode)
 
@@ -68,11 +85,25 @@ fn parse_markdown(content: str): ^nodes::DocumentNode {
                     index++
                 }
 
+                if index < file_length {
+                    index++
+                }
+
                 continue
             }
         }
 
-        // TODO: Paragraph
+        // TODO: Paragraph - it's too primitive
+        if (index == 0 || content[index - 1] == '\n') {
+            paragraph := parse_paragraph(content, index)
+
+            if paragraph != null {
+                doc.children = append(
+                    doc.children,
+                    nodes::Node(paragraph)
+                )
+            }
+        }
         index++
     }
 
